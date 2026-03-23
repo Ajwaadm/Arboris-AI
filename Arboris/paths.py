@@ -1,8 +1,9 @@
 """
-Arboris - Path Configuration (Version 2)
+Arboris - Paths & Config (Final Version)
 
 Purpose:
-- Manage dataset + outputs + checkpoints
+- Central configuration
+- Dataset + outputs + training settings
 """
 
 from imports import *
@@ -19,6 +20,17 @@ TRAIN_JSON = INAT21_PATH / "train.json"
 OUTPUT_DIR = BASE_DIR / "outputs"
 CHECKPOINT_DIR = OUTPUT_DIR / "checkpoints"
 LOG_FILE = OUTPUT_DIR / "training_log.csv"
+
+IMAGE_SIZE = 224
+BATCH_SIZE = 8
+EPOCHS = 3
+
+DATASET_STAGES = [0.001, 0.01, 0.1, 1.0]
+
+TAXONOMY_LEVELS = [
+    "kingdom", "phylum", "class",
+    "order", "family", "genus", "species"
+]
 
 def create_dirs():
     for p in [DATA_ROOT, OUTPUT_DIR, CHECKPOINT_DIR]:

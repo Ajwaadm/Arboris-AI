@@ -1,72 +1,68 @@
 """
-Arboris - Training (Version 2)
+Arboris - Model (Final Version)
 
 Purpose:
-- Train model
-- Save checkpoints
-- Log metrics
+- Custom CNN backbone
+- Transformer head
+- Multi-head classification
 """
 
 from imports import *
-from model import CNNModel
-from preprocess import get_dataloader
 from paths import *
 
-def train():
+class CNN(nn.Module):
+    def __init__(self):
+        super().__init__()
 
-    loader = get_dataloader()
-    num_classes = 1000  # simplified
-
-    model = CNNModel(num_classes).to(DEVICE)
-
-    optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
-    criterion = nn.CrossEntropyLoss()
-
-    best_loss = float("inf")
-
-    logs = []
-
-    for epoch in range(2):
-
-        model.train()
-        total_loss = 0
-
-        for images, labels in loader:
-
-            images = images.to(DEVICE)
-            labels = labels.to(DEVICE)
-
-            optimizer.zero_grad()
-
-            outputs = model(images)
-            loss = criterion(outputs, labels)
-
-            loss.backward()
-            optimizer.step()
-
-            total_loss += loss.item()
-
-        avg_loss = total_loss / len(loader)
-        print(f"Epoch {epoch+1} Loss: {avg_loss:.4f}")
-
-        logs.append({
-            "epoch": epoch + 1,
-            "train_loss": avg_loss
-        })
-
-        # Save checkpoint
-        torch.save(
-            model.state_dict(),
-            CHECKPOINT_DIR / "latest.pt"
+        self.net = nn.Sequential(
+            nn.Conv2d(3, 32, 3, padding=1), nn.ReLU(), nn.MaxPool2d(2),
+            nn.Conv2d(32, 64, 3, padding=1), nn.ReLU(), nn.MaxPool2d(2),
+            nn.Conv2d(64, 128, 3, padding=1), nn.ReLU(), nn.MaxPool2d(2),
         )
 
-        if avg_loss < best_loss:
-            best_loss = avg_loss
-            torch.save(
-                model.state_dict(),
-                CHECKPOINT_DIR / "best.pt"
-            )
+        self.pool = nn.AdaptiveAvgPool2d((1,1))
 
-    # Save logs
-    df = pd.DataFrame(logs)
-    df.to_csv(LOG_FILE, index=False)
+    def forward(self, x):
+        x = self.net(x)
+        x = self.pool(x)
+        return x.view(x.size(0), -1)
+
+
+class TransformerHead(nn.Module):
+    def __init__(self, dim=128):
+        super().__init__()
+
+        self.attn = nn.MultiheadAttention(dim, 4, batch_first=True)
+        self.norm = nn.LayerNorm(dim)
+
+    def forward(self, x):
+        x = x.unsqueeze(1)
+        attn_out, _ = self.attn(x, x, x)
+        x = self.norm(x + attn_out)
+        return x.squeeze(1)
+
+
+class Model(nn.Module):
+    def __init__(self, tax_sizes):
+        super().__init__()
+
+        self.cnn = CNN()
+        self.transformer = TransformerHead(128)
+
+        self.heads = nn.ModuleDict({
+            lvl: nn.Linear(128, tax_sizes[lvl])
+            for lvl in TAXONOMY_LEVELS
+        })
+
+    def forward(self, x):
+        x = self.cnn(x)
+        x = self.transformer(x)
+
+        return {lvl: self.heads[lvl](x) for lvl in TAXONOMY_LEVELS}
+
+
+def loss_fn(outputs, targets):
+    loss = 0
+    for i, lvl in enumerate(TAXONOMY_LEVELS):
+        loss += F.cross_entropy(outputs[lvl], targets[:, i])
+    return loss

@@ -1,9 +1,9 @@
 """
-Arboris - Central Imports (Version 2)
+Arboris - Central Imports (Final Version)
 
 Purpose:
-- Consolidate imports
-- Add utilities for training, logging, plotting
+- Unified imports
+- Device + reproducibility setup
 """
 
 import os
@@ -23,5 +23,15 @@ from PIL import Image
 import torchvision.transforms as transforms
 
 import matplotlib.pyplot as plt
+import seaborn as sns
+
+from torch.cuda.amp import autocast, GradScaler
+from tqdm import tqdm
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+def set_seed(seed=42):
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
