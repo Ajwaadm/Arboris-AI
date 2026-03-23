@@ -1,0 +1,7 @@
+conda activate Arboris
+git init
+git add .
+git commit -m "Initial barebones Arboris system"
+git branch -M main
+git remote add origin https://github.com/Ajwaadm/Arboris-AI.git
+git push -u origin main

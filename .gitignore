@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.pyc
+
+# Data
+datasets/
+dataset/
+outputs/
+checkpoints/
+
+# Large files
+*.pt
+*.pth
+*.tar.gz
+
+# OS
+.DS_Store
+Thumbs.db
+.vscode
+
+# Jupyter
+.ipynb_checkpoints/
