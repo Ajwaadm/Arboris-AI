@@ -1,25 +1,31 @@
 """
-Arboris - Main Entry Point
+Arboris - Plotting (Version 2)
 
 Purpose:
-- Run training or prediction
+- Plot training loss
 """
 
-from paths import create_dirs
-from train import train
+from imports import *
+from paths import *
 
-def main():
+def plot_loss():
 
-    create_dirs()
+    if not os.path.exists(LOG_FILE):
+        print("No log file found")
+        return
 
-    print("1. Train")
-    choice = input("Enter choice: ")
+    df = pd.read_csv(LOG_FILE)
 
-    if choice == "1":
-        train()
-    else:
-        print("Invalid choice")
+    plt.plot(df["epoch"], df["train_loss"])
+    plt.title("Training Loss")
+    plt.xlabel("Epoch")
+    plt.ylabel("Loss")
+
+    save_path = OUTPUT_DIR / "loss.png"
+    plt.savefig(save_path)
+
+    print(f"Saved: {save_path}")
 
 
 if __name__ == "__main__":
-    main()
+    plot_loss()
