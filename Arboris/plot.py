@@ -1,31 +1,26 @@
 """
-Arboris - Plotting (Version 2)
+Arboris - Plotting (Final Version)
 
 Purpose:
-- Plot training loss
+- Plot loss over time
 """
 
 from imports import *
 from paths import *
 
-def plot_loss():
+def plot():
 
     if not os.path.exists(LOG_FILE):
-        print("No log file found")
+        print("No logs found")
         return
 
     df = pd.read_csv(LOG_FILE)
 
-    plt.plot(df["epoch"], df["train_loss"])
+    plt.plot(df["loss"])
     plt.title("Training Loss")
-    plt.xlabel("Epoch")
-    plt.ylabel("Loss")
+    plt.savefig(OUTPUT_DIR / "loss.png")
 
-    save_path = OUTPUT_DIR / "loss.png"
-    plt.savefig(save_path)
-
-    print(f"Saved: {save_path}")
-
+    print("Plot saved")
 
 if __name__ == "__main__":
-    plot_loss()
+    plot()

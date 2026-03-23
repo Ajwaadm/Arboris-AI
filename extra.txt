@@ -6,9 +6,6 @@ git branch -M main
 git remote add origin https://github.com/Ajwaadm/Arboris-AI.git
 git push -u origin main
 
-git init
 git add .
-git commit -m "Fix for the Initial barebones Arboris system"
-git branch -M main
-git remote add origin https://github.com/Ajwaadm/Arboris-AI.git
-git push -u origin main
+git commit -m "Final version - hierarchical CNN + transformer training system. Potential further enhnacements and tweaks if deemed necessary."
+git push

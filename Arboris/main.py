@@ -1,8 +1,8 @@
 """
-Arboris - Main (Version 2)
+Arboris - Main (Final Version)
 
 Purpose:
-- Run training
+- CLI entry
 """
 
 from paths import create_dirs
